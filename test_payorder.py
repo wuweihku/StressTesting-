@@ -25,7 +25,7 @@ class test_payorder(unittest.TestCase):
         pass
     def test_payorder_cases(self):                      #执行测试功能的函数
         with open('csv/payorder_data.csv') as csvfile:  #打开csv文件流
-            reader = csv.DictReader(csvfile)            #创建文件流对象
+            reader = csv.DictReader(csvfile,skipinitialspace=True)            #创建文件流对象,skipinitialspace忽略逗号后的空格，支持extension
             totalnum = 0                                  #计算一共跑了多少条测试数据
             for row in reader:                          #这里的row对应csv表里的一行数据,第一行数据自动作为字段名,第二行数据开始作为测试实例
                 totalnum += 1
