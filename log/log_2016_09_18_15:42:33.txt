@@ -1,0 +1,13 @@
+
+======================================================================
+FAIL: test_payorder_cases (__main__.test_payorder) (row={'username': 't1473223417c0', 'sdkExtension': '{"rand": "1474181931"}', 'packageVersion': '1.0', 'serverID': '1', 'userID': '1303829', 'action': 'getOrderID', 'accessToken': 'Xy8HVpI8LnJfxywHjy_oWIKzdvx4WvbQ', 'osVersion': 'ios9.0.2', 'money': '100', 'productDesc': 'a', 'imei': '352024071820819', 'currency': 'RMB', 'device': 'iphone6', 'signType': 'RSA', 'roleName': 'a', 'code': '1009', 'roleLevel': '1', 'payChannel': 'ios', 'productName': 'a', 'cpOrderID': '14741819311303829111', 'sdkVersion': 'v1.1.0', 'appID': '1105260003', 'roleID': '14741819311303829', 'coin': '100', 'mac': '54: 4E: 90: BD: 7B: 8F', 'extension': '', 'serverName': 'a', 'productID': '1', 'signature': 'LwGUVyySGaGgQqjXqaX/adT6KdDdq80NRCaQBJlnQsJZc3W3zdo5Ue3Ma15myLsK+yuaENbxBgFQcyz06uH5vI0b3/uqHoTkwShZB4tz+3cJHBG528+Kxd+syahztKcFr4h5i5sUiXR0DwMi4It/GHmkkvdZ+oaGoZ+R++4C+gKN+BDm0hZBMgRhthngnOsMaTpnrron/8bb7m0bo+/sTdDGPl4XK0tNAUOEJVC2McxrOpDlgFfS/54GRTL09vVHsW3WFKIIyKxJ8DUgHNYBNqWdEuHA7JnMusdiiO/VtDBbL6o6J88ZkKk8crIii+FYAqZ4g8V+s5m0D4EYCadGjw=='})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "test_payorder.py", line 69, in test_payorder_cases
+    self.assertEqual(response_dict['code'], eval(row['code']))      #IOS内购获取订单号接口模块---您看到此信息,代表当行测试数据未通过---
+AssertionError: 1010 != 1009
+
+----------------------------------------------------------------------
+Ran 1 test in 0.023s
+
+FAILED (failures=1)
