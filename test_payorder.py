@@ -98,12 +98,11 @@ if __name__ == '__main__':
                 print('%s processing %s' % (threadName, data))
             else:
                 queueLock.release()
-            time.sleep(1)
+            time.sleep(0.1)
 
-    threadList = list(range(1, 3))         #起多少个线程
-    nameList = ["One", "Two", "Three", "Four", "Five"]
+    threadList = list(range(1, 4))          #起多少个线程
     queueLock = threading.Lock()            #创建线程锁
-    workQueue = queue.Queue(30)             #创建队列
+    workQueue = queue.Queue(15)              #创建队列,并设置队列长度，即所需要跑的case数
     threads = []                            #线程列表
     threadID = 1
 
@@ -114,12 +113,19 @@ if __name__ == '__main__':
         threads.append(thread)              #将线程都加到线程列表
         threadID += 1
 
-# 填充队列
+# 填充队列,在这里先把csv里的case都读取进队列
     queueLock.acquire()
-    while not workQueue.full():
-        for word in nameList:
-            workQueue.put(word)                 #将nameList列表里的元素放进队列
+    while not workQueue.full():                         #最终的限定是，case堆满队列
+        with open('csv/payorder_data.csv') as csvfile:  #打开csv文件流
+            reader = csv.DictReader(csvfile,skipinitialspace=True)            #创建文件流对象,skipinitialspace忽略逗号后的空格，支持extension
+            totalnum = 0                                #计算一共加了多少条测试数据进队列
+            for row in reader:                          #这里的row对应csv表里的一行数据,第一行数据自动作为字段名,第二行数据开始作为测试实例. 而且，这是一个for循环，只有当reader句柄对象都读完了，才会结束循环
+                totalnum += 1                           #如果不判断队列是否已满，则此for循环与外围while循环互相作用，形成死循环，永远无法完成最后一次put
+                workQueue.put(row)                      #将csv里的row放进队列
+                if workQueue.full():                    #队列塞满时，跳出for循环
+                    break
     queueLock.release()
+    print("已准备好 %d 条测试用例"%workQueue.qsize())
 
 # 等待队列清空
     while not workQueue.empty():
