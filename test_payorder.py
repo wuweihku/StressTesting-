@@ -108,6 +108,10 @@ if __name__ == '__main__':                              #如果从shell用python
     '''
     url = 'http://payapi.qa.15166.com/pay/order'        #所要访问的url,一个测试类对应一个url
 
+    totalthreads = 2                                    #起多少个线程，思想就是一开始就起好所有需要的线程
+    casesnum = 10                                       #思想就是一开始就将所有需要的cases准备进队列                               
+    duration = 3                                        #单次并发的duration
+
     global Totalcases                                   #记录一共跑了多少cases
     global Successed                                    #成功cases数
     global Failed                                       #失败cases数
@@ -117,12 +121,19 @@ if __name__ == '__main__':                              #如果从shell用python
     timestart  = time.time()                            #开始时间戳
 
     exitFlag = 0 
+    caseFlag = list(range(1,casesnum+1))                #用来标记workQueue.qsize()==(totalthreads+1）的情况
 
 # 定义线程内部run()函数
     def process_data(threadName, q):
         while not exitFlag:
             queueLock.acquire()                         #获得锁，成功获得锁定后返回True,可选的timeout参数不填时将一直阻塞直到获得锁定,否则超时后将返回False
             if not workQueue.empty():
+                print('current case: %s'%(casesnum-workQueue.qsize()+1))            #显示当前队列case进度
+
+                if workQueue.qsize() in caseFlag[::totalthreads]:                   #控制请求节奏，每隔totalthreads个请求则暂停duration秒
+                    print('current runround finished, %s seconds waiting for next new runround now.' %duration) 
+                    time.sleep(duration)
+
                 qdata = q.get()                         #qdata为一行队列数据
                 queueLock.release()                     #释放锁
                 
@@ -130,22 +141,21 @@ if __name__ == '__main__':                              #如果从shell用python
 
                 threadtestapi = TestAPI(threadName, url, qdata)                     #构造TestAPI对象, qdata为每次传入的一行case
                 threadtestapi.test_payorder()                                       #执行线程对象的测试函数
-
             else:
                 queueLock.release()
             time.sleep(0.05)
 
-    threadList = list(range(1, 31))                     #起多少个线程
+    threadList = list(range(1, totalthreads+1))         #起多少个线程
     queueLock = threading.Lock()                        #创建线程锁
-    workQueue = queue.Queue(100)                       #创建队列,并设置队列长度，即所需要跑的case数
+    workQueue = queue.Queue(casesnum)                   #创建队列,并设置队列长度，即所需要跑的case数
     threads = []                                        #线程列表
     threadID = 1
 
-# 创建新线程
+# 创建新线程，只负责起线程
     for tName in threadList:
-        thread = myThread(threadID, tName, workQueue)   #起线程,这里线程对象一创建，就会自动调用线程对象里的run（）函数. 所以在这里用time.sleep（）控制线程节奏，几轮，一轮多少并发.
-        thread.start()
-        threads.append(thread)                          #将线程都加到线程列表
+        thread = myThread(threadID, tName, workQueue)                               #起线程,这里线程对象一创建，就会自动调用线程对象里的run（）函数. 所以在这里用time.sleep（）控制线程节奏，几轮，一轮多少并发.
+        thread.start() 
+        threads.append(thread)                                                      #将线程都加到线程列表
         threadID += 1
 
 # 填充队列,在这里先把csv里的case都读取进队列
@@ -159,11 +169,11 @@ if __name__ == '__main__':                              #如果从shell用python
                 workQueue.put(row)                      #将csv里的row放进队列
                 if workQueue.full():                    #队列塞满时，跳出for循环
                     break
-    queueLock.release()
     print("%d Testcases Ready "%workQueue.qsize())
-
+    queueLock.release()                                 #这里锁一旦释放，线程就开始执行各自的run（）函数了 
+    
 # 等待队列清空
-    while not workQueue.empty():
+    while not workQueue.empty():                        #当cases队列为空时，结束此循环，进入下一步
         pass
 
 # 通知线程是时候退出
@@ -182,13 +192,10 @@ if __name__ == '__main__':                              #如果从shell用python
 
 
 
+    '''
 
+    for runround in range(totalround):
+        print('current runround: %s '%(runround+1))
 
-
-
-
-
-
-
-
-
+        time.sleep(sleeptime)                                                       #一秒并发一次
+    '''
