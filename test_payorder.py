@@ -108,9 +108,9 @@ if __name__ == '__main__':                              #如果从shell用python
     '''
     url = 'http://payapi.qa.15166.com/pay/order'        #所要访问的url,一个测试类对应一个url
 
-    totalthreads = 2                                    #起多少个线程，思想就是一开始就起好所有需要的线程
-    casesnum = 10                                       #思想就是一开始就将所有需要的cases准备进队列                               
-    duration = 3                                        #单次并发的duration
+    totalthreads = 3000                                 #起多少个线程，思想就是一开始就起好所有需要的线程
+    casesnum = 3000                                     #思想就是一开始就将所有需要的cases准备进队列                               
+    duration = 1                                        #单次并发的duration
 
     global Totalcases                                   #记录一共跑了多少cases
     global Successed                                    #成功cases数
@@ -122,6 +122,7 @@ if __name__ == '__main__':                              #如果从shell用python
 
     exitFlag = 0 
     caseFlag = list(range(1,casesnum+1))                #用来标记workQueue.qsize()==(totalthreads+1）的情况
+    concurrents = int(totalthreads/10)                  #单轮并发量
 
 # 定义线程内部run()函数
     def process_data(threadName, q):
@@ -130,7 +131,7 @@ if __name__ == '__main__':                              #如果从shell用python
             if not workQueue.empty():
                 print('current case: %s'%(casesnum-workQueue.qsize()+1))            #显示当前队列case进度
 
-                if workQueue.qsize() in caseFlag[::totalthreads]:                   #控制请求节奏，每隔totalthreads个请求则暂停duration秒
+                if workQueue.qsize() in caseFlag[::concurrents]:                    #控制请求节奏，每隔concurrents个请求则暂停duration秒
                     print('current runround finished, %s seconds waiting for next new runround now.' %duration) 
                     time.sleep(duration)
 
@@ -191,11 +192,6 @@ if __name__ == '__main__':                              #如果从shell用python
     print('%s seconds cost for testing'%timecost)
 
 
-
-    '''
-
-    for runround in range(totalround):
-        print('current runround: %s '%(runround+1))
-
-        time.sleep(sleeptime)                                                       #一秒并发一次
-    '''
+# 还剩下问题
+#1. cases的准备
+#2. 验证单秒并发，即1秒内的确发出了那么多的请求
