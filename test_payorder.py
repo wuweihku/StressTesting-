@@ -108,8 +108,8 @@ if __name__ == '__main__':                              #如果从shell用python
     '''
     url = 'http://payapi.qa.15166.com/pay/order'        #所要访问的url,一个测试类对应一个url
 
-    totalthreads = 3000                                 #起多少个线程，思想就是一开始就起好所有需要的线程
-    casesnum = 3000                                     #思想就是一开始就将所有需要的cases准备进队列                               
+    totalthreads = 300                                 #起多少个线程，思想就是一开始就起好所有需要的线程
+    casesnum = 300                                     #思想就是一开始就将所有需要的cases准备进队列                               
     duration = 1                                        #单次并发的duration
 
     global Totalcases                                   #记录一共跑了多少cases
@@ -122,7 +122,7 @@ if __name__ == '__main__':                              #如果从shell用python
 
     exitFlag = 0 
     caseFlag = list(range(1,casesnum+1))                #用来标记workQueue.qsize()==(totalthreads+1）的情况
-    concurrents = int(totalthreads/10)                  #单轮并发量
+    concurrents = int(totalthreads/10)                  #单轮并发量，可以用casesnum/concurrents，算出一共需要跑多少round
 
 # 定义线程内部run()函数
     def process_data(threadName, q):
@@ -194,4 +194,3 @@ if __name__ == '__main__':                              #如果从shell用python
 
 # 还剩下问题
 #1. cases的准备
-#2. 验证单秒并发，即1秒内的确发出了那么多的请求
